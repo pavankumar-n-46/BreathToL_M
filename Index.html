@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content=" This script connects to breathing sensors 
+    using web bluetooth, packs the data into json and does a post request to ML model running in localServer, 
+    then displays breath intake of the person wearing the sensor in liters per.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="visualize.js" type="text/javascript"></script>
+    <title>Web Bluetooth / Notifications Sample</title>
+</head>
+
+<body>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            const searchParams = new URL(location).searchParams;
+            const inputs = Array.from(document.querySelectorAll('input[id]'));
+
+            inputs.forEach(input => {
+                if (searchParams.has(input.id)) {
+                    if (input.type == 'checkbox') {
+                        input.checked = searchParams.get(input.id);
+                    } else {
+                        input.value = searchParams.get(input.id);
+                        input.blur();
+                    }
+                }
+                if (input.type == 'checkbox') {
+                    input.addEventListener('change', function (event) {
+                        const newSearchParams = new URL(location).searchParams;
+                        if (event.target.checked) {
+                            newSearchParams.set(input.id, event.target.checked);
+                        } else {
+                            newSearchParams.delete(input.id);
+                        }
+                        history.replaceState({}, '', Array.from(newSearchParams).length ?
+                            location.pathname + '?' + newSearchParams : location.pathname);
+                    });
+                } else {
+                    input.addEventListener('input', function (event) {
+                        const newSearchParams = new URL(location).searchParams;
+                        if (event.target.value) {
+                            newSearchParams.set(input.id, event.target.value);
+                        } else {
+                            newSearchParams.delete(input.id);
+                        }
+                        history.replaceState({}, '', Array.from(newSearchParams).length ?
+                            location.pathname + '?' + newSearchParams : location.pathname);
+                    });
+                }
+            });
+        });
+    </script>
+
+
+    <form>
+        <button id="startNotifications">Start notifications</button>
+        <button id="stopNotifications">Stop notifications</button>
+    </form>
+
+
+    <script>
+        var ChromeSamples = {
+            log: function () {
+                var line = Array.prototype.slice.call(arguments).map(function (argument) {
+                    return typeof argument === 'string' ? argument : JSON.stringify(argument);
+                }).join(' ');
+
+                document.querySelector('#log').textContent += line + '\n';
+            },
+
+            clearLog: function () {
+                document.querySelector('#log').textContent = '';
+            },
+
+            setStatus: function (status) {
+                document.querySelector('#status').textContent = status;
+            },
+
+            setContent: function (newContent) {
+                var content = document.querySelector('#content');
+                while (content.hasChildNodes()) {
+                    content.removeChild(content.lastChild);
+                }
+                content.appendChild(newContent);
+            }
+        };
+    </script>
+
+    <h3>Live Output</h3>
+    <div id="output" class="output">
+        <div id="content"></div>
+        <div id="status"></div>
+        <pre id="log"></pre>
+    </div>
+
+
+    <script>
+        document.querySelector('#startNotifications').addEventListener('click', function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+
+            if (isWebBluetoothEnabled()) {
+                ChromeSamples.clearLog();
+                onStartButtonClick();
+            }
+        });
+        document.querySelector('#stopNotifications').addEventListener('click', function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+
+            if (isWebBluetoothEnabled()) {
+                onStopButtonClick();
+            }
+        });
+    </script>
+
+    <script>
+        log = ChromeSamples.log;
+
+        function isWebBluetoothEnabled() {
+            if (navigator.bluetooth) {
+                return true;
+            } else {
+                ChromeSamples.setStatus('Web Bluetooth API is not available.\n' +
+                    'Please make sure the "Experimental Web Platform features" flag is enabled.');
+                return false;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

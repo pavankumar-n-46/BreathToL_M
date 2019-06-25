@@ -6,6 +6,8 @@ var iput = 1;
 
 var dataQueue = [50];
 
+var airflowValue;
+
 
 
 
@@ -84,7 +86,7 @@ function handleNotifications(event) {
       "value": dataQueue
     };
     loadDoc(body);
-    log(body);
+    //log(body);
   }
 
 }
@@ -99,10 +101,27 @@ function loadDoc(body) {
   ajax.send(JSON.stringify(body));
 }
 
-function callback() {
-  if (ajax.readyState == 4) {
-    log(ajax.responseText);
+function callback() 
+{
+  if (ajax.readyState == 4) 
+  {
+    var result = JSON.parse(ajax.responseText);
+    airflowValue = result.airflow * 100;
   }
+}
+
+function setup()
+{
+  createCanvas(windowWidth, windowHeight);
+  noStroke();
+  fill(255, 204, 0);
+}
+
+function draw()
+{
+  background(0,7,40);
+  textSize(30); 
+  text(airflowValue.value, 200, 600);
 }
 
 

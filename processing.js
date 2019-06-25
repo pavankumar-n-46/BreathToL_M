@@ -107,10 +107,11 @@ function callback()
   {
     var result = JSON.parse(ajax.responseText);
     airflowValue = result.airflow * 100;
+    log(Math.round(airflowValue));
   }
 }
 
-function setup()
+/* function setup()
 {
   createCanvas(windowWidth, windowHeight);
   noStroke();
@@ -124,5 +125,5 @@ function draw()
   text(airflowValue.value, 200, 600);
 }
 
-
+ */
 
